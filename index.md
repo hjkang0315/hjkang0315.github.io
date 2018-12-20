@@ -53,9 +53,11 @@ u개의 Unlabeled data가 포함되면 다음과 같이 표현할 수 있다. (L
 Step2는 앞선 과정을 통해 Labeled된 x들의 정보를 이용해 M step을 진행하여 MLE θ로 update한다. 이 과정을 반복하여 Solution을 찾는다.
 ![이미지9](http://)
 
+**-. 일반화된 EM알고리즘**
 다음은 EM알고리즘의 일반화된 내용이다. 여기서 H는 Unlabeled data이다. θ가 주어졌을 때 data가 생성될 확률은 hidden data의 class는 모르기 때문에, 이에 대해 모든 확률을 따져서 Joint probability를 구하고 data set이 가장 Maximum Likely하게 생성될 수 있는 확률 분포를 찾아내겠다는 의미로 목적은 동일하다.
 ![이미지10](http://)
 
+**-. 장점과 단점**
 EM알고리즘을 기본으로 한 Generative model은 명백하고 많이 연구된 확률 Framework이며, Model이 올바르다면 아주 효과적이다. 하지만 반대로 Self-training의 경우와 같이 Model이 잘못되었다면 결과는 더 좋지않은 방향으로 갈 수 있으며, Local optimal의 위험이 있고 Correctness를 확인하기가 어렵다. 예를 들어, 흔치는 않지만 아래의 그래프처럼 위 아래로 Class가 존재하지만 data가 좌우 경향으로 분포된 경우 Optimal을 잘 찾지 못하는 단점을 갖는다.
 ![이미지11](http://)
 
