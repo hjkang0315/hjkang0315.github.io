@@ -1,10 +1,3 @@
----
-layout: default
-permalink: index.html
-title: Personal Homepage of foo boo
-description: "Blogging on ...."
----
-
 본 포스트는 고려대학교 산업경영공학과 강필성교수님의 Business Analytics 강의를 바탕으로 작성되었습니다.
 
 **Generative Models**
