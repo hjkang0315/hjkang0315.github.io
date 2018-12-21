@@ -215,23 +215,18 @@ Weight, Mu, Sigma = gm.fit(200)
 
 ```
 
-
+loop 1
 ![plot1](http://hjkang0315.github.io/r_1.png)
-```Python
-('loop [', 1, '] MLE=', -6047.941786594476, ' DIFF=', 93951.05821340553)
-```
 
+loop 5
 ![plot2](http://hjkang0315.github.io/r_2.png)
-```Python
-('loop [', 5, '] MLE=', -6020.768392058435, ' DIFF=', 1.899425788508779)
-```
 
 ###...
 
+loop 60 
 ![plot2](http://hjkang0315.github.io/r_3.png)
-```Python
-('loop [', 60, '] MLE=', -5993.801651950046, ' DIFF=', 0.011293848091554537)
-```
+
+
 
 
 
@@ -251,6 +246,8 @@ array([[[0.97649666, 0.97369508],
         [0.86571878, 1.01197117]]])
 ```
 
+## 결론
+Class 정보가 존재하는 적은 수의 Labeled Data가 주어진 상황에서 추정한 분포에서, 많은 수의 Unlabeled Data를 추가해 분포 추정에 사용할 경우, EM step에 따라 추정된 분포에 따라 Decision boundary가 어떻게 변하는지를 가시적으로 확인해보았다. 또한, 적은 수의 Labeled data만으로 추정한 분포 보다,많은 수의 Unlabeled data를 추가해 추정한 분포가 초기 생성한 정답 분포에 보다 가까운 분포로 추정된 것을 확인할 수 있었다. 이를 통해 Semi-supervised learning이 Generative model에 사용 되어, 추정을 더욱 잘 할 수 있게 동작 하는 것을 확인하였다.
 
 ###### References
 Fox-Roberts, P., & Rosten, E. (2014). Unbiased generative semi-supervised learning. The Journal of Machine Learning Research, 15(1), 367-443.
