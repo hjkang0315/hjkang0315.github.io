@@ -55,10 +55,196 @@ EM알고리즘을 기본으로 한 Generative model은 명백하고 많이 연�
 ![이미지11](http://hjkang0315.github.io/11.png)
 
 구현 코드는 다음과 같다.
-`import numpy as np
+```Python
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
-import matplotlib`
+
+class GenerativeModels:
+    def __init__(self, labeled_x, labeled_y, num_class, unlabeled_x):
+        self.labeled_x = labeled_x
+        self.labeled_y = labeled_y
+        self.num_class = num_class
+        self.unlabeled_x = unlabeled_x
+        
+    def fit(self, max_iter=10):
+        Weight, Mu, Sigma = self.initialize()  ##  label 데이터를 통해 parameter theta인 w, mu, sigma 추정
+        
+        self.plot_data(Mu, Sigma)
+        
+        iterator = 0
+        previous_mle = -99999
+        while(True):
+            iterator += 1
+            
+            '''expectation step : Unlabeled Data를 추가하여 앞서 추정된 theta에 대한
+               각 Point들의 조건부확률을 구하고(E Step) 확률에 따라 Class(y)를 할당'''
+            m = self.expectation(self.unlabeled_x, Weight, Mu, Sigma)
+            
+            ''' maximization step : 확장된 Labeled Data 공간에서 다시 theta를 추정'''
+            Weight, Mu, Sigma = self.maximization(self.unlabeled_x, m)
+            
+            if (iterator % 5) == 0:
+                self.plot_data(Mu, Sigma)
+            
+            mle = self.maximum_log_like(self.unlabeled_x, Weight, Mu, Sigma)
+            print("loop [", iterator, "] MLE=", mle, " DIFF=", abs(mle-previous_mle))
+            
+            '''지정된 iterator만큼 e-step과 m-step을 반복하거나,
+               더 이상 MLE값이 유의미하게 개선되지 않으면 종료'''
+            if (iterator > max_iter or abs(mle-previous_mle) < 0.01):
+                break
+                
+            previous_mle = mle
+        
+        return Weight, Mu, Sigma
+
+    def plot_data(self, Mu, Sigma):
+        nx = np.arange(-2.0, 7.0, 0.1)
+        ny = np.arange(-2.0, 7.0, 0.1)
+        ax, ay = np.meshgrid(nx, ny)
+        
+        plt.scatter(self.labeled_x[0:10, 0], self.labeled_x[0:10, 1], c="r", s=3.5)
+        plt.scatter(self.labeled_x[10:, 0], self.labeled_x[10:, 1], c="b", s=3.5)
+        plt.scatter(self.unlabeled_x[0:,0], self.unlabeled_x[0:,1], c="y", s=1)
+        
+        az_list = []
+        for k in range(0, self.num_class):
+            az = mlab.bivariate_normal(ax, ay, Sigma[0, 0, k], Sigma[1, 1, k], Mu[0,k], Mu[1,k], Sigma[1, 0, k])
+            az_list.append(az)
+
+        az = 10.0 * (az_list[1] - az_list[0])
+        contour = plt.contour(ax, ay, az)
+        plt.clabel(contour, inline=0.01, fontsize=10)
+        
+        plt.show()
+    
+    def norm_pdf_multivariate(self, x, mu, sigma):
+        size = len(x)
+        det = np.linalg.det(sigma)
+        
+        ## 1 / (2*pi^(d/2) * def(sigma)^2)
+        norm_const = 1.0/(np.math.pow((2*np.pi), float(size)/2) * np.math.pow(det, 1.0/2))
+        x_mu = np.matrix(x - mu)
+        inv_ = np.linalg.inv(sigma)
+        result = np.math.pow(np.math.e, -0.5 * (x_mu.T * inv_ * x_mu))
+        
+        return norm_const * result
+
+    def maximum_log_like(self, dataset, Weight, Mu, Sigma):
+        K = len(Weight)
+        N,M = dataset.shape
+        P = np.zeros([N,K])
+        
+        for k in range(K):
+            for i in range(N):
+                P[i,k] = self.norm_pdf_multivariate(dataset[i,:][None].T,Mu[0:,k][None].T,Sigma[:,:,k])
+                
+        return np.sum(np.log(P.dot(Weight)))
+
+    def expectation(self, dataset, Weight, Mu, Sigma):
+        N = dataset.shape[0] ## N : the number of instance
+        K = len(Weight)      ## K : the number of class
+        m = np.zeros([N,K])  ## m : N * K matrix (각 data가 어떤 class에 속할지에 대한 확률)
+        for k in range(K):
+            for i in range(N):
+                m[i,k] = Weight[k]*self.norm_pdf_multivariate(dataset[i,:][None].T, Mu[:,k][None].T,Sigma[:,:,k])
+        
+        m = m * np.reciprocal(np.sum(m,1)[None].T)
+        return m
+
+    def maximization(self, dataset, m):
+        N, M = dataset.shape
+        K = m.shape[1]
+        N_k = np.sum(m,0) ## class별 확률의 합
+        Weight = N_k/np.sum(N_k)
+        
+        ## Mu 계산
+        Mu = dataset.T.dot(m).dot(np.diag(np.reciprocal(N_k)))
+        
+        ## Sigma 계산
+        Sigma = np.zeros([M,M,K])
+        for k in range(K):
+            datMeanSub = dataset.T - Mu[0:,k][None].T.dot(np.ones([1,N]))
+            Sigma[:,:,k] = (datMeanSub.dot(np.diag(m[0:,k])).dot(datMeanSub.T))/N_k[k]
+        
+        return Weight, Mu, Sigma
+
+    ## label 데이터를 통해서 mu, Sigma 계산
+    def initialize(self):
+        N, M = self.labeled_x.shape
+        m = np.zeros([N, self.num_class])
+
+        for i in range(self.labeled_y.shape[0]):
+            m[i, np.int(self.labeled_y[i])] = 1            
+        
+        Weight, Mu, Sigma = self.maximization(self.labeled_x, m)
+        
+        return Weight, Mu, Sigma
+            
+			
+# 2차원의 다중정규분포를 따르는 난수 생성
+mean1=[3,1]
+sigma1=[[1,0],[0,1]]
+np.random.seed(0)
+N1=np.random.multivariate_normal(mean1,sigma1,1000).T
+
+mean2=[2,2]
+sigma2=[[1,0.5],[0.5,1]]
+np.random.seed(1)
+N2=np.random.multivariate_normal(mean2,sigma2,1000).T
+
+
+# labeled data : 10건, unlabeled data : 990건
+labeled_x1 = N1.T[0:10]
+labeled_x2 = N2.T[0:10]
+
+unlabeled_x1 = N1.T[10:]
+unlabeled_x2 = N2.T[10:]
+
+label_x = np.concatenate((labeled_x1, labeled_x2))
+unlabel_x = np.concatenate((unlabeled_x1, unlabeled_x2))
+
+y = np.concatenate((np.zeros(10), np.ones(10)))
+
+
+gm = GenerativeModels(label_x, y, 2, unlabel_x)
+
+
+Weight, Mu, Sigma = gm.fit(200)
+
+```
+
+
+![plot1](http://hjkang0315.github.io/r_1.png)
+```Python('loop [', 1, '] MLE=', -6047.941786594476, ' DIFF=', 93951.05821340553)```
+
+![plot2](http://hjkang0315.github.io/r_2.png)
+```Python('loop [', 5, '] MLE=', -6020.768392058435, ' DIFF=', 1.899425788508779)```
+
+###...
+
+![plot2](http://hjkang0315.github.io/r_3.png)
+```Python('loop [', 60, '] MLE=', -5993.801651950046, ' DIFF=', 0.011293848091554537)```
+
+
+
+```Python
+Weight
+array([0.46829954, 0.53170046])
+
+Mu
+array([[2.99390089, 1.99189662],
+       [0.89543446, 2.00986136]])
+	   
+Sigma
+array([[[0.97649666, 0.97369508],
+        [0.03909626, 0.47806756]],
+
+       [[0.03909626, 0.47806756],
+        [0.86571878, 1.01197117]]])
+```
+
 
 ###### References
 Fox-Roberts, P., & Rosten, E. (2014). Unbiased generative semi-supervised learning. The Journal of Machine Learning Research, 15(1), 367-443.
