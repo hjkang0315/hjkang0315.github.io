@@ -54,7 +54,7 @@ Step2는 앞선 과정을 통해 Labeled된 x들의 정보를 이용해 M step�
 EM알고리즘을 기본으로 한 Generative model은 명백하고 많이 연구된 확률 Framework이며, Model이 올바르다면 아주 효과적이다. 하지만 반대로 Self-training의 경우와 같이 Model이 잘못되었다면 결과는 더 좋지않은 방향으로 갈 수 있으며, Local optimal의 위험이 있고 Correctness를 확인하기가 어렵다. 예를 들어, 흔치는 않지만 아래의 그래프처럼 위 아래로 Class가 존재하지만 data가 좌우 경향으로 분포된 경우 Optimal을 잘 찾지 못하는 단점을 갖는다.
 ![이미지11](http://hjkang0315.github.io/11.png)
 
-구현 코드는 다음과 같다.
+## 구현 코드 및 설명
 ```Python
 import numpy as np
 import matplotlib.pyplot as plt
