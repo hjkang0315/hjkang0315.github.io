@@ -1,8 +1,6 @@
 본 포스트는 고려대학교 산업경영공학과 강필성교수님의 Business Analytics 강의를 바탕으로 작성되었습니다.
 
-강조 ==강조==
-
-# **Generative Models**
+## Generative Models
 크게 보면 Machine Learning은 환경을 모델링하는 과정으로, Data라는 경험을 통해 학습을 진행하고 이를 통해 새로운 상황이 발생했을 때 추론을 하는 과정이라 할 수 있다. 이를 3가지의 큰 범주로 나누면 다음과 같다.
 1. Generative model : Data가 어떤 확률분포로부터 생성되었는지 학습, Joint probability를 최대화하는 것이 목적, ex) Hidden Markov Model, Generative Adversarial Network 등. 상대적인 장점으로, 비교적 데이터가 적어도 진행이 가능하고, 주어진 데이터를 통해 데이터의 특성을 파악할 수 있으며, 제대로 된 특성을 찾았다면 해당 분포를 따르는 데이터를 생성해낼 수 있음
 2. Discriminative model : 주어진 x(=v)로 y(=h)를 예측하는 일반적인 Machin learning 종류, Conditional probability를 최대화하는 것이 목적
@@ -10,19 +8,19 @@
 
 ![이미지1](http://hjkang0315.github.io/1.png)
 
-- **Semi-supervised learning에서의 Gaussian mixture model기반 Generative model**
+#### Semi-supervised learning에서의 Gaussian mixture model기반 Generative model
 본 포스트에서 Semi-supervised learning을 진행함에 있어 Gaussian mixture model에 기반한 Generative model을 보인다. 수업에서 Generative model로서 다룬 내용은 일반적인 Gaussian mixture model과 전체적인 개념과 철학은 같지만 Process의 차이가 있다.
 1. Novelty detection관점에서 Gaussian mixture model은 주어진 모든 data는 정상이라는 가정을 하고 밀도를 추정하는 것 (Mode 수만 지정, 초기 θ Random)
 2. Semi-supervised learning관점의 분포 기반 Generative model은 각각의 소수의 Label class에 따라서 서로 다른 분포를 가정을 하고, 그후 Unlabeled data를 고려해서 추정을 통해 Boundary를 찾는 것. 알고리즘 진행상의 순서로 차이를 요약하면, m=2인 Binary Class의 경우를 가정, 소수의 Labeled Data만을 가지고 추정 값인 θ=(ω_1, ω_2, μ_1, μ_2, Σ_1, Σ_2)의 초기값을 잡고, 이후 Unlabeled data를 추가하여 EM step을 진행하는 부분이 차이점
 
-- **Gaussian mixture model기반 Generative model**
+#### Gaussian mixture model기반 Generative model
 개별 Class는 각 하나의 Single Gaussian 분포로부터 비롯되었다고 가정 한다. 아래 그림을 예로 설명하면, (o) Class와, (+) Class가 각각의 Single Gaussian 분포를 따른다고 가정하자.
 
 ![이미지2](http://hjkang0315.github.io/2.png)
 
 먼저 주어진 일부 Data는 (o) Class와, (+) Class로 Labeled되어있기 때문에, Class별로 Mean vector μ를 구할 수 있고 그에 대한 Covariance matrix Σ를 구할 수 있다. 단순한 계산으로 θ를 얻을 수 있지만, 굳이 따져보면 Labeled Data로부터 Maximization Step을 진행하는 것이다. 해당하는 Mode에서부터 확률분포를 추정하면, (o) Class와, (+) Class의 생성 확률이 같아지는 특정한 점들을 찾을 수 있고, 해당 점들을 통해서 경계를 구분한다. 여기서, ω_1과 ω_2는 각 Class의 비중(Weight)이며, μ_1과 μ_2는 각 Class의 Mean vector, Σ_1과 Σ_2는 각 Class의 Covariance matrix이다. Covariance matrix에 의해서 분포에 따른 등고선으로 표현할 수 있다.
 
-- **많은 수의 Unlabeled Data와 소수의 Labeled Data가 주어진 상황에서, Generative model의 관점에서 접근하면 어떠한 Decision boundary를 찾아낼 수 있을까?**
+#### 많은 수의 Unlabeled Data와 소수의 Labeled Data가 주어진 상황에서, Generative model의 관점에서 접근하면 어떠한 Decision boundary를 찾아낼 수 있을까?
 X와 θ가 주어졌을 때 y를 구하는게 우리 목적이다. 따라서, 초기에 주어진 Labeled Data에 의해 추정된 θ값 환경에 대해 새로운 Unlabeled data(X)들이 추가되면 θ_1로부터 Unlabeled data가 생성되었을 확률 값과, θ_2로부터 Unlabeled data가 생성되었을 확률 값, 그리고 Data에 대한 불균형이 있다면 해당 특징을 반영하는 사전 확률(Prior probability)을 고려해서 생성 확률이 더 높은 θ의 Class에 할당(y할당)하는 방법으로 Classification을 진행한다. 이는 먼저 추정된 θ를 통해 조건부 확률을 구하는 Expectation step이다. 일반적인 Classification과 Boundary를 찾고자 하는 목적은 같지만 과정이 다르다.
 
 ![이미지3](http://hjkang0315.github.io/3.png)
@@ -48,11 +46,11 @@ u개의 Unlabeled data가 포함되면 다음과 같이 표현할 수 있다. (L
 Step2는 앞선 과정을 통해 Labeled된 x들의 정보를 이용해 M step을 진행하여 MLE θ로 update한다. 이 과정을 반복하여 Solution을 찾는다.
 ![이미지9](http://hjkang0315.github.io/9.png)
 
-- **일반화된 EM알고리즘**
+#### 일반화된 EM알고리즘
 다음은 EM알고리즘의 일반화된 내용이다. 여기서 H는 Unlabeled data이다. θ가 주어졌을 때 data가 생성될 확률은 hidden data의 class는 모르기 때문에, 이에 대해 모든 확률을 따져서 Joint probability를 구하고 data set이 가장 Maximum Likely하게 생성될 수 있는 확률 분포를 찾아내겠다는 의미로 목적은 동일하다.
 ![이미지10](http://hjkang0315.github.io/10.png)
 
-- **장점과 단점**
+#### 장점과 단점
 EM알고리즘을 기본으로 한 Generative model은 명백하고 많이 연구된 확률 Framework이며, Model이 올바르다면 아주 효과적이다. 하지만 반대로 Self-training의 경우와 같이 Model이 잘못되었다면 결과는 더 좋지않은 방향으로 갈 수 있으며, Local optimal의 위험이 있고 Correctness를 확인하기가 어렵다. 예를 들어, 흔치는 않지만 아래의 그래프처럼 위 아래로 Class가 존재하지만 data가 좌우 경향으로 분포된 경우 Optimal을 잘 찾지 못하는 단점을 갖는다.
 ![이미지11](http://hjkang0315.github.io/11.png)
 
