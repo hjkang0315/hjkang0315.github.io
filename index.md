@@ -221,7 +221,7 @@ loop 1
 loop 5
 ![plot2](http://hjkang0315.github.io/r_2.png)
 
-###...
+### ...
 
 loop 60 
 ![plot2](http://hjkang0315.github.io/r_3.png)
