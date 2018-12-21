@@ -55,7 +55,10 @@ EM알고리즘을 기본으로 한 Generative model은 명백하고 많이 연�
 ![이미지11](http://hjkang0315.github.io/11.png)
 
 구현 코드는 다음과 같다.
-
+`import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
+import matplotlib`
 
 ###### References
 Fox-Roberts, P., & Rosten, E. (2014). Unbiased generative semi-supervised learning. The Journal of Machine Learning Research, 15(1), 367-443.
